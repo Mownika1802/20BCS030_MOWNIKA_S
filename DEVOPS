@@ -1,0 +1,59 @@
+#include<LiquidCrystal.h>
+LiquidCrystal lcd(6, 7, 5, 4, 3, 2);//RS,EN,D4,D5,D6,D7
+const int AOUTpin=A0; //the AOUT pin of the alcohol sensor goes into analog pin A0 of the arduino//
+const int ledPin=13;//the anode of the LED connects to digital pin D13 of the arduino
+
+int limit;
+int value;
+void setup() 
+{
+lcd.begin(16,2);
+Serial.begin(9600);//sets the baud rate
+pinMode(AOUTpin,INPUT);//sets the pin as an input to the 
+  lcd.setCursor(0,1);
+  lcd.print("    SYSTEM    ");//Write(ledPin, HIarduino
+pinMode(ledPin, OUTPUT);//sets the pin as an output of the arduino
+ lcd.print(" AUTO GAS BOOK ");//digitalWrite(ledPin, LOW);GH);
+ delay(2000);
+}
+
+void loop()
+{
+value= analogRead(AOUTpin);//reads the analaog value from the alcohol sensor's AOUT pin
+
+delay(100);
+lcd.clear();
+  lcd.print("A:");
+  lcd.print(value);
+    
+  delay(500);
+if (value>100){
+  lcd.clear();
+digitalWrite(ledPin, HIGH);//if limit has been reached, LED turns on as status indicator
+lcd.print(" GAS LEAK ");
+digitalWrite(ledPin, HIGH);
+delay(650);
+SendMessage1();
+}
+
+
+else{
+digitalWrite(ledPin, LOW);//if threshold not reached, LED remains off
+lcd.print(" NORMAL  ");
+}
+}
+
+  void SendMessage1()
+{
+  //// lcd.clear();
+///  lcd.print(" ..."); //
+  delay(6000);
+ Serial.println("AT+CMGF=1");    //Sets the GSM Module in Text Mode
+  delay(1000);  // Delay of 1000 milli seconds or 1 second
+  Serial.println("AT+CMGS=\"+919942705538\"\r"); // Replace x with mobile number
+  delay(1000);
+  Serial.println("GAS LEAK");// The SMS text you want to send
+  delay(100);
+  Serial.println((char)26);// akenASCII code of CTRL+Z
+  delay(3000);
+}
